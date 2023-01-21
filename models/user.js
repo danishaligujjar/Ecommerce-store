@@ -1,18 +1,20 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const { v1: uuidv1 } = require('uuid');
+//var uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = new mongoose.Schema({
     name:{
         type: String,
         trim: true,
-        require:true,
+        required:true,
         maxlength: 32
     },
     email:{
         type: String,
         trim: true,
-        require:true,
+        required:true,
+        unique: true,
         maxlength: 32
     },
     hashed_password:{
@@ -45,6 +47,9 @@ userSchema.virtual('password')
 })
 
 userSchema.methods = {
+    authenticate : function(plainText){
+        return this.encryptPassword(plainText) === this.hashed_password;
+    },
     encryptPassword : function(password){
         if(!password) return '';
         try {
@@ -57,5 +62,5 @@ userSchema.methods = {
         }
     }
 }
-
+//userSchema.plugin(uniqueValidator)
 module.exports = mongoose.model('User', userSchema)
